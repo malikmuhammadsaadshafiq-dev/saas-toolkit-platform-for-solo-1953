@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import { ArrowRight, Bookmark } from 'lucide-react'
 import type { Stack, Tool } from '@/lib/types'
