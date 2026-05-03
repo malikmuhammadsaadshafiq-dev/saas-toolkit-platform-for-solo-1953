@@ -24,7 +24,7 @@ This repository was generated end-to-end by **[MVP Factory](https://github.com/m
 
 - The frontend renders at **the deployed Vercel URL** as soon as Vercel finishes the first build.
 - ⚠️ The code reads 2 env var(s): `DATABASE_URL`, `JWT_SECRET`. These **must be set on the Vercel project** (_Settings → Environment Variables_) — otherwise the live URL will return 500 wherever those values are touched. See the *Environment variables* section below for where to obtain each.
-- ℹ️ A local `backend/` directory exists in the repo but **is not deployed** — only `api/*.py` and the Next.js frontend ship to Vercel.
+- ⚠️ Storage is **SQLite running inside a serverless function — fully ephemeral**. Every cold start gets a fresh empty DB. Fine for demos; **for real users you must swap to Postgres** (see *Going to production* below).
 
 ## Architecture
 
@@ -37,10 +37,10 @@ This repository was generated end-to-end by **[MVP Factory](https://github.com/m
 | Layer | Technology | Where it runs |
 |-------|------------|---------------|
 | Frontend | Next.js 14 + Tailwind | Vercel Edge / CDN |
-| Backend | None — frontend only | n/a |
-| Storage | none | n/a |
+| Backend | Python serverless (FastAPI / handler functions) | Vercel Python runtime — each `api/*.py` is a stateless function |
+| Storage | SQLite | In the function's filesystem (ephemeral) — swap `DATABASE_URL` for Postgres in prod |
 
-This product has **no backend service**. Everything is a static or client-rendered Next.js app served from Vercel's edge.
+Each file under `api/` is deployed by Vercel as an independent serverless Python function. There is **no long-running server** — functions cold-start on request and scale to zero. Shared modules (`models.py`, `database.py`) are imported by the route files.
 
 ## 🚀 Quick start (5 minutes)
 
@@ -48,6 +48,8 @@ This product has **no backend service**. Everything is a static or client-render
 
 - **Node.js 18+** — verify with `node --version`
 - **Git**
+- **Python 3.11+** — verify with `python --version`
+- **Vercel CLI** — `npm i -g vercel` (needed to emulate Python serverless locally)
 
 ### 1. Clone
 
@@ -73,10 +75,10 @@ Open `.env.local` and fill in the real values (see *Environment variables* below
 ### 4. Run
 
 ```bash
-npm run dev
+vercel dev
 ```
 
-Open <http://localhost:3000>.
+Open <http://localhost:3000>. The Python `/api/*` routes only execute under `vercel dev` because they need the Vercel Python runtime emulator.
 
 ## Environment variables
 
@@ -113,6 +115,7 @@ vercel --prod
 
 ## 🏭 Going to production
 
+- **Swap SQLite for Postgres.** SQLite on Vercel resets on every cold start. Pick any of: [Vercel Postgres](https://vercel.com/storage/postgres), [Neon](https://neon.tech), [Supabase](https://supabase.com). Grab the connection string, set `DATABASE_URL` in Vercel project settings, and the code will pick it up automatically (the abstraction layer reads `DATABASE_URL` first, falls back to local SQLite for dev).
 - **Wire up real keys.** The deployed URL will surface 500s on any code path that touches an unset env var. Set every variable from the *Environment variables* table inside Vercel before sharing the link.
 - **Custom domain.** Vercel project → Settings → Domains → Add. The `.vercel.app` URL works fine for testing but is rate-limited and not great for branding.
 - **Analytics.** Vercel Web Analytics is one click away under the project's Analytics tab. Plausible / PostHog are also a 5-line snippet drop-in.
@@ -130,24 +133,35 @@ api/
   schemas.py
   seed.py
   ... (2 more)
-backend/
-  tests/
-frontend/
-  tests/
+next-env.d.ts
 next.config.js
+package-lock.json
 package.json
 postcss.config.js
+README.md
 src/
   app/
   components/
   lib/
 tailwind.config.js
 tsconfig.json
+vercel.json
 ```
 
 ## API surface
 
-_No HTTP API — this is a frontend-only app._
+**Python serverless functions** (`api/*.py` → Vercel functions):
+
+```
+/api/auth
+/api/database (helper, not an HTTP route in code)
+/api
+/api/models (helper, not an HTTP route in code)
+/api/schemas (helper, not an HTTP route in code)
+/api/seed
+/api/seed_stacks
+/api/seed_tools
+```
 
 ## 🛠 Troubleshooting
 
@@ -157,15 +171,17 @@ _No HTTP API — this is a frontend-only app._
 | `Module not found` errors | Run `npm install` again, then delete `.next/` and retry. |
 | Port 3000 already in use | `npx kill-port 3000`, or run with `PORT=3001 npm run dev`. |
 | Live URL returns 500 on a real action | Env vars not set on Vercel. Project → Settings → Environment Variables → add the keys from the table above, then redeploy. |
+| Data disappears between requests on the live URL | Expected — SQLite is ephemeral on serverless. Move to Postgres (see *Going to production*). |
+| `/api/*` returns 404 in `npm run dev` | Python routes only run under `vercel dev`. Switch the dev command and try again. |
 
 ## For AI agents reading this repo
 
-- **Stack:** Next.js 14 frontend + None — frontend only
-- **Run locally:** `npm install && npm run dev` (port 3000)
-- **Backend lives at:** `(no backend)`
-- **Backend runs as:** n/a
+- **Stack:** Next.js 14 frontend + Python serverless (FastAPI / handler functions)
+- **Run locally:** `npm install && npm run dev` (port 3000) — use `vercel dev` to also emulate Python serverless functions
+- **Backend lives at:** `api/`
+- **Backend runs as:** Vercel Python runtime — each `api/*.py` is a stateless function
 - **No long-running server processes** — every request hits a fresh function instance.
-- **Storage:** none
+- **Storage:** SQLite
 - **Required env vars:** `DATABASE_URL`, `JWT_SECRET`
 
 ## License
