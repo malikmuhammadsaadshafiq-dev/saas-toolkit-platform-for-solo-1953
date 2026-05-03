@@ -1,0 +1,83 @@
+"""6 curated starter stacks — (slug, name, description, persona, [(tool_slug, role), ...])."""
+STACKS = [
+    (
+        "indie-hacker",
+        "Indie Hacker Stack",
+        "The lean, proven stack for solo founders launching their first SaaS. Optimised for speed and low upfront cost.",
+        "Solo Founder / Indie Hacker",
+        [
+            ("vercel", "Hosting & deployment"),
+            ("supabase", "Database, Auth & Storage"),
+            ("stripe", "Payments"),
+            ("resend", "Transactional email"),
+            ("posthog", "Product analytics"),
+        ],
+    ),
+    (
+        "ai-saas",
+        "AI SaaS Stack",
+        "Ship AI-powered products fast. Covers infra, auth, AI inference, payments and error tracking.",
+        "AI Product Builder",
+        [
+            ("vercel", "Edge hosting"),
+            ("supabase", "Database & Auth"),
+            ("openai", "AI inference engine"),
+            ("stripe", "Subscription billing"),
+            ("sentry", "Error & performance monitoring"),
+        ],
+    ),
+    (
+        "mvp-launch",
+        "MVP Launch Stack",
+        "Minimum cost, maximum velocity. Validate your idea before spending a dollar on premium tooling.",
+        "First-time Founder",
+        [
+            ("railway", "Hosting + managed database"),
+            ("clerk", "User auth & management"),
+            ("lemon-squeezy", "One-time & recurring payments"),
+            ("resend", "Transactional email"),
+            ("plausible", "Privacy-friendly analytics"),
+        ],
+    ),
+    (
+        "b2b-growth",
+        "B2B SaaS Growth Stack",
+        "Enterprise-friendly tools for B2B products that need SSO, advanced billing, and dedicated support.",
+        "B2B SaaS Founder",
+        [
+            ("flyio", "Global edge hosting"),
+            ("neon", "Serverless Postgres"),
+            ("stripe", "Subscription payments"),
+            ("intercom", "Customer messaging & support"),
+            ("mixpanel", "Behavioural analytics"),
+            ("sentry", "Production monitoring"),
+        ],
+    ),
+    (
+        "content-creator",
+        "Content Creator Monetisation Stack",
+        "Turn your audience into revenue. Covers website, email list, digital sales and social scheduling.",
+        "Content Creator / Solopreneur",
+        [
+            ("webflow", "Marketing website & CMS"),
+            ("convertkit", "Email list & automations"),
+            ("gumroad", "Digital product sales"),
+            ("beehiiv", "Newsletter growth"),
+            ("buffer", "Social media scheduling"),
+        ],
+    ),
+    (
+        "enterprise-ready",
+        "Enterprise-Ready SaaS Stack",
+        "Production-grade infrastructure to support scaling from hundreds to thousands of paying customers.",
+        "Scaling SaaS Founder",
+        [
+            ("render", "Reliable cloud hosting"),
+            ("mongodb-atlas", "Scalable document database"),
+            ("auth0", "Enterprise SSO & identity"),
+            ("chargebee", "Advanced subscription billing"),
+            ("zendesk", "Enterprise customer support"),
+            ("datadog", "Full-stack observability"),
+        ],
+    ),
+]
